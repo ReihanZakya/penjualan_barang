@@ -9,14 +9,132 @@ package penjualan_barang;
  *
  * @author Administrator
  */
+import java.awt.Desktop;
+import java.net.URL;
+import java.sql.*;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.KeyEvent;
+
 public class fpenjualan extends javax.swing.JFrame {
 
     /**
      * Creates new form fpenjualan
      */
+    
+    public long total;
+    public long bayar;
+    public long kembali;
+    public Statement st;
+    Connection cn = koneksi.getKoneksi();
+
+    private DefaultTableModel model;
+     
     public fpenjualan() {
         initComponents();
+        model = new DefaultTableModel();
+        tabel.setModel(model);
+        model.addColumn("ID");
+        model.addColumn("kode barang");
+        model.addColumn("nama barang");
+        model.addColumn("harga satuan");
+        model.addColumn("jumlah beli");
+        model.addColumn("harga");
+        loadData();
+        nofaktur();
+        tampilpilih();
     }
+
+    public void FilterHuruf(KeyEvent a){
+        if(Character.isDigit(a.getKeyChar())){
+            a.consume();
+            JOptionPane.showMessageDialog(null, "masukan huruf saja!", "peringatan",
+            JOptionPane.WARNING_MESSAGE);
+        }
+    }
+    
+    public void FilterAngka(KeyEvent a){
+            if(Character.isAlphabetic(a.getKeyChar())){
+                a.consume();
+                JOptionPane.showMessageDialog(null, "masukan angka saja!", "peringatan",
+                JOptionPane.WARNING_MESSAGE);
+            }
+    }
+    
+    public final void loadData() {
+            model.getDataVector().removeAllElements();
+            model.fireTableDataChanged();
+            try {
+                Connection c = koneksi.getKoneksi();
+                Statement s = c.createStatement();
+                String sql = "SELECT * FROM tbl_hitung_jual";
+                ResultSet r = s.executeQuery(sql);
+            while (r.next()) {
+                Object[] o = new Object[6];
+                o[2] = r.getString("nama_barang");
+                o[3] = r.getString("hsatuan");
+                o[4] = r.getString("jumlah_beli");
+                o[5] = r.getString("harga");
+
+                model.addRow(o); o[0] = r.getString("id_tmp");
+                o[1] = r.getString("kd_barang");
+                o[2] = r.getString("nama_barang");
+                o[3] = r.getString("hsatuan");
+                o[4] = r.getString("jumlah_beli");
+                o[5] = r.getString("harga");
+
+                model.addRow(o);
+            }
+            r.close();
+            s.close();
+            } catch (SQLException e) {
+                System.out.println("Terjadi Error");
+            }
+    }
+    
+     private void tampilpilih() {
+        try {
+            Connection c = koneksi.getKoneksi();
+            Statement s = c.createStatement();
+            String sql = "SELECT nama_barang FROM tbl_barang WHERE jumlah_barang !='0'";
+            ResultSet r = s.executeQuery(sql);
+        while (r.next()) {
+            pilihbarang.addItem(r.getString("nama_barang"));
+        }
+            r.last();
+            int jumlahdata = r.getRow();
+            r.first();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+ }
+    private void nofaktur() {
+        try {
+            Connection c = koneksi.getKoneksi();
+            Statement s = c.createStatement();
+            String sql = "SELECT * FROM tbl_penjualan ORDER by nofaktur desc";
+            ResultSet r = s.executeQuery(sql);
+            if (r.next()) {
+                String nofak = r.getString("nofaktur").substring(1);
+                String AN = "" + (Integer.parseInt(nofak) + 1);
+                String Nol = "";
+            if (AN.length() == 1) {
+                Nol = "000";
+            } else if (AN.length() == 2) {
+                Nol = "00";
+            } else if (AN.length() == 3) {
+                Nol = "0";
+            } else if (AN.length() == 4) {
+                Nol = "";
+            }
+                faktur.setText("F" + Nol + AN);
+            } else {
+                faktur.setText("F0001");
+            }
+        } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, e);
+        }
+ }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -31,23 +149,23 @@ public class fpenjualan extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
+        kdbarang = new javax.swing.JTextField();
+        hsatuan = new javax.swing.JTextField();
+        faktur = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        hitung = new javax.swing.JButton();
+        tambah = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jTextField6 = new javax.swing.JTextField();
+        tabel = new javax.swing.JTable();
+        tjumlah = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jTextField7 = new javax.swing.JTextField();
+        pilihbarang = new javax.swing.JComboBox<>();
+        ttotal = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
-        jLabel9 = new javax.swing.JLabel();
+        labelTotal = new javax.swing.JLabel();
         jButton4 = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
@@ -55,6 +173,7 @@ public class fpenjualan extends javax.swing.JFrame {
         jTextField9 = new javax.swing.JTextField();
         jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
+        jumlah = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -90,9 +209,9 @@ public class fpenjualan extends javax.swing.JFrame {
 
         jPanel2.setBackground(new java.awt.Color(139, 50, 44));
 
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        kdbarang.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                kdbarangActionPerformed(evt);
             }
         });
 
@@ -116,45 +235,55 @@ public class fpenjualan extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Harga Satuan");
 
-        jButton2.setText("Hitung");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        hitung.setText("Hitung");
+        hitung.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                hitungActionPerformed(evt);
             }
         });
 
-        jButton3.setText("Tambah");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        tambah.setText("Tambah");
+        tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                tambahActionPerformed(evt);
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tabel.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "ID", "Kode", "Nama", "Harga Satuan", "Jumlah Beli", "Harga"
             }
         ));
-        jScrollPane2.setViewportView(jTable1);
+        jScrollPane2.setViewportView(tabel);
 
         jLabel8.setBackground(new java.awt.Color(255, 255, 255));
         jLabel8.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Jumlah Jual");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        pilihbarang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        pilihbarang.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pilihbarangActionPerformed(evt);
+            }
+        });
 
         jPanel3.setBackground(new java.awt.Color(221, 87, 70));
 
-        jLabel9.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel9.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("Rp. ");
+        labelTotal.setBackground(new java.awt.Color(255, 255, 255));
+        labelTotal.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        labelTotal.setForeground(new java.awt.Color(255, 255, 255));
+        labelTotal.setText("Rp. ");
 
         jButton4.setText("Total");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         jLabel10.setBackground(new java.awt.Color(255, 255, 255));
         jLabel10.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -180,7 +309,7 @@ public class fpenjualan extends javax.swing.JFrame {
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel10)
-                            .addComponent(jLabel9))
+                            .addComponent(labelTotal))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -202,7 +331,7 @@ public class fpenjualan extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(44, 44, 44)
-                .addComponent(jLabel9)
+                .addComponent(labelTotal)
                 .addGap(27, 27, 27)
                 .addComponent(jButton4)
                 .addGap(49, 49, 49)
@@ -239,17 +368,18 @@ public class fpenjualan extends javax.swing.JFrame {
                             .addComponent(jLabel8))
                         .addGap(38, 38, 38)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                                    .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                                    .addComponent(jTextField6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                                    .addComponent(jTextField7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE))
-                                .addGap(28, 28, 28)
-                                .addComponent(jButton2))))
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(tambah, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(kdbarang, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                                .addComponent(faktur, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                                .addComponent(hsatuan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                                .addComponent(tjumlah, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                                .addComponent(ttotal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE))
+                            .addComponent(pilihbarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(28, 28, 28)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(hitung)
+                            .addComponent(jumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 516, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 101, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -262,30 +392,31 @@ public class fpenjualan extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(faktur, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
                         .addGap(20, 20, 20)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(pilihbarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jumlah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(kdbarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hsatuan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tjumlah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel8))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton2))
+                            .addComponent(ttotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hitung))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
-                        .addComponent(jButton3)
+                        .addComponent(tambah)
                         .addGap(53, 53, 53)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
@@ -311,17 +442,147 @@ public class fpenjualan extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void kdbarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kdbarangActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_kdbarangActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void hitungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hitungActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+        if(faktur.getText().equals("") ||kdbarang.getText().equals("") ||
+        pilihbarang.getSelectedItem().equals("")|| hsatuan.getText().equals("")|| tjumlah.getText().equals("")){
+        JOptionPane.showMessageDialog(null, "LENGKAPI DATA !", "Aplikasi Penjualan",
+        JOptionPane.INFORMATION_MESSAGE);
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+         }else{
+            String a = tjumlah.getText();
+            int aa = Integer.parseInt(a);
+
+            String b = jumlah.getText();
+            int bb = Integer.parseInt(b);
+         if(aa > bb){
+         JOptionPane.showMessageDialog(null, "jumlah melebihi stok", "Aplikasi Penjualan",
+         JOptionPane.INFORMATION_MESSAGE);
+         tjumlah.setText("");
+         }else{
+
+         if(tjumlah.getText().equals("")){
+         JOptionPane.showMessageDialog(null, "ISI JUMLAH BELI !");
+         }else{
+         int jumlah, harga, total;
+
+         jumlah = Integer.parseInt(tjumlah.getText().toString());
+         harga = Integer.parseInt(hsatuan.getText().toString());
+         total = jumlah * harga;
+
+
+         ttotal.setText(Integer.toString(total));
+
+         }
+         }
+         } 
+    }//GEN-LAST:event_hitungActionPerformed
+
+    private void tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tambahActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+        if(faktur.getText().equals("") ||kdbarang.getText().equals("") ||
+        pilihbarang.getSelectedItem().equals("")|| hsatuan.getText().equals("")|| tjumlah.getText().equals("")||
+        ttotal.getText().equals("")){
+            JOptionPane.showMessageDialog(null, "LENGKAPI DATA !", "Aplikasi Penjualan",
+            JOptionPane.INFORMATION_MESSAGE);
+
+         }else{
+            String kdbarangg = kdbarang.getText();
+            String pilihbarangg = (String)pilihbarang.getSelectedItem();
+            String hsatuann = hsatuan.getText();
+            String tjumlahh = tjumlah.getText();
+            String totall = ttotal.getText();
+
+            try {
+               Connection c = koneksi.getKoneksi();
+
+               String sql = "INSERT INTO tbl_hitung_jual VALUES (?, ?, ?, ?, ?, ?)";
+
+
+               PreparedStatement p = c.prepareStatement(sql);
+               p.setString(1, null);
+               p.setString(2, kdbarangg);
+               p.setString(3, pilihbarangg);
+               p.setString(4, hsatuann);
+               p.setString(5, tjumlahh);
+               p.setString(6, totall);
+
+               p.executeUpdate();
+               p.close();
+            } catch (SQLException e) {
+               System.out.println("Terjadi Error");
+            } finally {
+               nofaktur();
+               kdbarang.setText("");
+               pilihbarang.setSelectedItem("");
+               hsatuan.setText("");
+               tjumlah.setText("");
+               ttotal.setText("");
+               JOptionPane.showMessageDialog(null, "Data berhasil disimpan", "Aplikasi Penjualan",
+              JOptionPane.INFORMATION_MESSAGE);
+               loadData();
+
+
+            }
+         }
+    }//GEN-LAST:event_tambahActionPerformed
+
+    private void pilihbarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pilihbarangActionPerformed
+        // TODO add your handling code here:
+        if (pilihbarang.getSelectedItem().equals("pilih barang")){
+            kdbarang.setText("");
+            hsatuan.setText("");
+        }else{
+        try {
+            Connection c = koneksi.getKoneksi();
+            Statement s = c.createStatement();
+            String sql = "SELECT kd_barang, jumlah_barang FROM tbl_barang WHERE nama_barang ='" +
+            pilihbarang.getSelectedItem() + "'";
+            ResultSet r = s.executeQuery(sql);
+            while (r.next()) {
+                kdbarang.setText(r.getString("kd_barang"));
+                jumlah.setText(r.getString("jumlah_barang"));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+        try {
+            Connection c = koneksi.getKoneksi();
+            Statement s = c.createStatement();
+            String sql = "SELECT harga_jual FROM tbl_barang WHERE nama_barang ='" +
+            pilihbarang.getSelectedItem() + "'";
+            ResultSet r = s.executeQuery(sql);
+            while (r.next()) {
+            hsatuan.setText(r.getString("harga_jual"));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+        }
+    }//GEN-LAST:event_pilihbarangActionPerformed
+
+    //TOMBOL TOTAL
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        try {
+            Connection c = koneksi.getKoneksi();
+            Statement s = c.createStatement();
+            String sql = "SELECT SUM(`harga`) AS total FROM tbl_tmp_beli";
+            ResultSet r = s.executeQuery(sql);
+            while (r.next()) {
+            labelTotal.setText(r.getString(""+"total"));
+            }
+            r.close();
+            s.close();
+        } catch (SQLException e) {
+            System.out.println("Terjadi Error");
+        }
+
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -359,13 +620,13 @@ public class fpenjualan extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField faktur;
+    private javax.swing.JButton hitung;
+    private javax.swing.JTextField hsatuan;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -374,18 +635,19 @@ public class fpenjualan extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
     private javax.swing.JTextField jTextField9;
+    private javax.swing.JTextField jumlah;
+    private javax.swing.JTextField kdbarang;
+    private javax.swing.JLabel labelTotal;
+    private javax.swing.JComboBox<String> pilihbarang;
+    private javax.swing.JTable tabel;
+    private javax.swing.JButton tambah;
+    private javax.swing.JTextField tjumlah;
+    private javax.swing.JTextField ttotal;
     // End of variables declaration//GEN-END:variables
 }
