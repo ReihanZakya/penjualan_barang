@@ -63,7 +63,7 @@ public class fbarang extends javax.swing.JFrame {
             r.close();
             s.close();
         } catch (SQLException e) {
-
+            System.out.println(e.getMessage());
         }
     }
     
