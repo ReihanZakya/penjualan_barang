@@ -97,7 +97,7 @@ public class fbarang extends javax.swing.JFrame {
 
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-        fmenu fb = new fmenu();
+        fmenu2 fb = new fmenu2();
         fb.setVisible(true);
         this.setVisible(false);
     }
@@ -144,6 +144,11 @@ public class fbarang extends javax.swing.JFrame {
         jLabel6.setText("Pengolahan Data Barang");
 
         jButton1.setText("Back");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -499,6 +504,13 @@ public class fbarang extends javax.swing.JFrame {
     private void txt_cariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_cariActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_cariActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        fmenu2 fm = new fmenu2();
+        fm.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

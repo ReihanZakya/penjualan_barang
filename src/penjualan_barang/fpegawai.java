@@ -114,6 +114,11 @@ public class fpegawai extends javax.swing.JFrame {
         jLabel6.setText("Pengolahan Data Pegawai");
 
         jButton1.setText("Kembali");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -391,6 +396,7 @@ public class fpegawai extends javax.swing.JFrame {
                 p.setString(5, sendNotelp);
                 p.setString(6, sendAgama);
                 p.setString(7, sendAlamat);
+                p.setString(8, sendUsername);
 
                 p.executeUpdate();
                 p.close();
@@ -543,6 +549,13 @@ public class fpegawai extends javax.swing.JFrame {
         String alamat = (String) model.getValueAt(i, 6);
         tf_alamat.setText(alamat);
     }//GEN-LAST:event_tabelMouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        fmenu2 fm = new fmenu2();
+        fm.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

@@ -201,7 +201,7 @@ public class flogin extends javax.swing.JFrame {
                     if (txt_password.getText().equals(sql.getString("password"))) {
                         JOptionPane.showMessageDialog(null, "login berhasil");
                         this.dispose();
-                        fmenu fb = new fmenu();
+                        fmenu2 fb = new fmenu2();
                         fb.setVisible(true);
                         this.setVisible(false);
                     } else {
