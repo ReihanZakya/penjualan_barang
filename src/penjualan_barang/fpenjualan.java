@@ -9,12 +9,20 @@ package penjualan_barang;
  *
  * @author Administrator
  */
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 import java.awt.Desktop;
 import java.net.URL;
 import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class fpenjualan extends javax.swing.JFrame {
 
@@ -167,7 +175,7 @@ public class fpenjualan extends javax.swing.JFrame {
         kembalian = new javax.swing.JTextField();
         tbayar = new javax.swing.JTextField();
         btnSelesai = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        btnCetak = new javax.swing.JButton();
         labelJual = new javax.swing.JLabel();
         jumlah = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
@@ -325,7 +333,12 @@ public class fpenjualan extends javax.swing.JFrame {
             }
         });
 
-        jButton6.setText("Cetak");
+        btnCetak.setText("Cetak");
+        btnCetak.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakActionPerformed(evt);
+            }
+        });
 
         labelJual.setBackground(new java.awt.Color(255, 255, 255));
         labelJual.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
@@ -355,7 +368,7 @@ public class fpenjualan extends javax.swing.JFrame {
                                 .addComponent(jLabel11)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
                                 .addComponent(kembalian, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jButton6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(btnCetak, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(31, 31, 31))))
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
@@ -378,11 +391,11 @@ public class fpenjualan extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
                     .addComponent(kembalian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(51, 51, 51)
+                .addGap(67, 67, 67)
+                .addComponent(btnCetak)
+                .addGap(18, 18, 18)
                 .addComponent(btnSelesai)
-                .addGap(30, 30, 30)
-                .addComponent(jButton6)
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addContainerGap(84, Short.MAX_VALUE))
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel3Layout.createSequentialGroup()
                     .addGap(175, 175, 175)
@@ -750,6 +763,62 @@ public class fpenjualan extends javax.swing.JFrame {
                 System.out.println(kembali);
     }//GEN-LAST:event_tbayarKeyReleased
 
+    private void btnCetakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakActionPerformed
+        // TODO add your handling code here:
+         try {
+            // Definisi nama file PDF
+            String filePath = "struk_belanja.pdf";
+
+            // Inisialisasi objek Dokumen PDF
+            Document document = new Document();
+            PdfWriter.getInstance(document, new FileOutputStream(filePath));
+            document.open();
+
+            // Menambahkan judul
+            document.add(new Paragraph("Struk Belanja"));
+            document.add(Chunk.NEWLINE); // Baris baru (newline) atau
+
+            // Membuat tabel untuk data penjualan
+            com.itextpdf.text.pdf.PdfPTable pdfTable = new com.itextpdf.text.pdf.PdfPTable(model.getColumnCount());
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                pdfTable.addCell(model.getColumnName(i));
+            }
+
+            // Menambahkan data dari tabel model ke tabel PDF
+            for (int row = 0; row < model.getRowCount(); row++) {
+                for (int col = 0; col < model.getColumnCount(); col++) {
+                    pdfTable.addCell(model.getValueAt(row, col).toString());
+                }
+            }
+
+            // Menambahkan tabel ke dokumen PDF
+            document.add(pdfTable);
+
+            document.add(Chunk.NEWLINE); // Baris baru (newline) atau
+
+             // Menambahkan total pendapatan ke dokumen PDF
+            document.add(new Paragraph("Total Harga : " + labelJual.getText()));
+            document.add(new Paragraph("Bayar : " + tbayar.getText()));
+            document.add(new Paragraph("Kembalian : " + kembalian.getText()));
+
+            document.close();
+
+            // Memberitahu pengguna bahwa PDF telah berhasil dibuat
+            JOptionPane.showMessageDialog(null, "PDF telah berhasil dibuat: " + filePath);
+
+            // Membuka file PDF di default PDF viewer
+            File file = new File(filePath);
+            if (file.exists()) {
+                Desktop.getDesktop().open(file);
+            } else {
+                JOptionPane.showMessageDialog(null, "File PDF tidak ditemukan!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (DocumentException | IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnCetakActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -786,13 +855,13 @@ public class fpenjualan extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCetak;
     private javax.swing.JButton btnSelesai;
     private javax.swing.JButton btnTotal;
     private javax.swing.JTextField faktur;
     private javax.swing.JButton hitung;
     private javax.swing.JTextField hsatuan;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
